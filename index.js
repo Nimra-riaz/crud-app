@@ -7,6 +7,7 @@ const path = require('path')
 const pool = require('./dbCom')
 const dbpool =require('./dbCom')
 var bodyParser = require('body-parser')
+const { json } = require('body-parser')
 
 // creating middleware
 app.use(express.static('public'))
@@ -20,11 +21,13 @@ app.get('/u', (req, res) => {
 
 })
 
+//Create api
+
 app.post('/todo/create', async (req,res) =>{
   let result = await pool.query(`INSERT INTO public.todolist
-    (id, task, done)
-    VALUES($1, $2, $3)`,
-    [req.body.id,req.body.task,req.body.done]
+    (task, done)
+    VALUES($1, $2)`,
+    [req.body.task,req.body.done]
 
     )
     res.json({
@@ -33,23 +36,99 @@ app.post('/todo/create', async (req,res) =>{
     console.log("Api running")
 } )
 
+//get all todo list tasks (along with filter get all done tasks)
+
+app.get('/todo/filter',async (req,res)=>{
+
+  let result= await pool.query(`SELECT id, task, done
+  FROM public.todolist
+  WHERE done='true';
+  `)
+  //console.log(result)
+  let a= res.json({todo: result.rows})
+  console.log(result)
+ 
+  
+})
+
+//count api
+//count of tasks { total, done , pending}
+app.get('/todo/con',async (req,res)=>{
+  let result = await pool.query(`Select  count (public.todolist.id) as Total , count(done) filter (where false) as pending, count(done) filter (where true) as done  from public.todolist`)
+  res.send(result.rows)
+})
+
+
+app.get('/todo/count', async (req,res)=>{
+  let result = await pool.query(`select count(*) as total,
+   count(done) filter (where done = 'true') as Done,
+   count(done) filter (where done = 'false') as Pending
+   from public.todolist `)
+  //res.json({todo: result.rows})
+  //res.parse(result.rows)
+  
+  var b = result.rows
+  var a= JSON.parse(b)
+  res.send(a)
+  console.log(result)
+
+})
+
+//update description api
 
 app.put('/todo/update', async (req,res) =>{
   let result = await pool.query(`UPDATE public.todolist
-  SET  done=true
-  WHERE id=10;
-  `
+  SET  task=$2
+  WHERE id=$1
+  `,
+  [req.body.id,req.body.task]
    
 
     )
+    console.log(result)
     res.json({
       "Status" :"Task updated"
     })
-    console.log("Api running")
+    //console.log("Api running")
+} )
+
+//update task status
+
+app.put('/todo/update/status', async (req,res) =>{
+  let result = await pool.query(`UPDATE public.todolist
+  SET  done=$2
+  WHERE id=$1
+  `,
+  [req.body.id,req.body.done]
+   
+
+    )
+    console.log(result)
+    res.json({
+      "Status" :"Task updated"
+    })
+    //console.log("Api running")
+} )
+
+//delete task api
+
+app.delete('/todo/delete', async (req,res) =>{
+  let result = await pool.query(`DELETE FROM public.todolist
+  WHERE id=$1;
+  `,
+  [req.body.id]
+   
+
+    )
+    console.log(result)
+    res.json({
+      "Status" :"Task updated"
+    })
+    //console.log("Api running")
 } )
 
 
-
+// filter all records from the table
 app.get('/testdb',async (request, response) => {
     let res= await pool.query('select * from public.todoList')
     console.log(res.rows)
