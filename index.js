@@ -64,13 +64,16 @@ app.get('/todo/count', async (req,res)=>{
    count(done) filter (where done = 'true') as Done,
    count(done) filter (where done = 'false') as Pending
    from public.todolist `)
-  //res.json({todo: result.rows})
+   //res.json({todo: result.rows})
+
   //res.parse(result.rows)
   
-  var b = result.rows
-  var a= JSON.parse(b)
-  res.send(a)
-  console.log(result)
+  //var b = result.rows
+  ///var a= JSON.stringify(b)
+  //res.send(a)
+  //console.log(result)
+  var answer = result.rows
+  console.log(`${JSON.stringify(result.rows, '', 2)}`);
 
 })
 

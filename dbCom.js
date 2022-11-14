@@ -1,5 +1,20 @@
 const Pool = require('pg').Pool
+require('dotenv').config()
 
+
+const pool=new Pool({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB,
+    password: process.env.DB_PASS,
+    port: process.env.DB_PORT,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
+
+// hardcoded form of heroku credientials
+/* 
 const pool=new Pool({
     user:'grzdwwakbjnbpw',
     host: 'ec2-44-205-177-160.compute-1.amazonaws.com',
@@ -9,6 +24,6 @@ const pool=new Pool({
     ssl: {
         rejectUnauthorized: false
     }
-});
+}); */
 
 module.exports =pool;
