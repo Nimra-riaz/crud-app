@@ -8,6 +8,11 @@ const pool = require('./dbCom')
 const dbpool =require('./dbCom')
 var bodyParser = require('body-parser')
 const { json } = require('body-parser')
+const TodoController = require('./Controllers/todoController')
+
+const TODO_BASE_ROUTE = '/todo';
+
+const todoController = new TodoController()
 
 // creating middleware
 app.use(express.static('public'))
@@ -22,8 +27,10 @@ app.get('/u', (req, res) => {
 })
 
 //Create api
+app.get(TODO_BASE_ROUTE, todoController.getAll)
+app.post('/todo/create', todoController.createTask)
 
-app.post('/todo/create', async (req,res) =>{
+/* app.post('/todo/create', async (req,res) =>{
   let result = await pool.query(`INSERT INTO public.todolist
     (task, done)
     VALUES($1, $2)`,
@@ -35,7 +42,7 @@ app.post('/todo/create', async (req,res) =>{
     })
     console.log("Api running")
 } )
-
+ */
 //get all todo list tasks (along with filter get all done tasks)
 
 app.get('/todo/filter',async (req,res)=>{
@@ -58,6 +65,7 @@ app.get('/todo/con',async (req,res)=>{
   res.send(result.rows)
 })
 
+//app.get(TODO_BASE_ROUTE, todoController.getAll)
 
 app.get('/todo/count', async (req,res)=>{
   let result = await pool.query(`select count(*) as total,
@@ -73,7 +81,7 @@ app.get('/todo/count', async (req,res)=>{
   //res.send(a)
   //console.log(result)
   var answer = result.rows
-  console.log(`${JSON.stringify(result.rows, '', 2)}`);
+  console.log(`${JSON.stringify(result.rows[0], '{}', 2)}`);
 
 })
 
@@ -132,12 +140,12 @@ app.delete('/todo/delete', async (req,res) =>{
 
 
 // filter all records from the table
-app.get('/testdb',async (request, response) => {
+/* app.get('/testdb',async (request, response) => {
     let res= await pool.query('select * from public.todoList')
     console.log(res.rows)
     //response.json({info: 'Node.js,Express, and postgres API'})
     response.json({ todo : res.rows})
-    })
+    }) */
   
  
 app.listen(port, () => {
